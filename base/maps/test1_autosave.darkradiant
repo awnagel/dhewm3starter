@@ -1,0 +1,40 @@
+DarkRadiant Map Information File Version 2
+{
+	Layers
+	{
+		Layer 0 { Default }
+	}
+	NodeToLayerMapping
+	{
+		Node { 0 } // entity (worldspawn)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // entity (light_1)
+		Node { 0 } // entity (info_player_start_1)
+		Node { 0 } // entity (light_4)
+		Node { 0 } // entity (light_5)
+		Node { 0 } // entity (env_bird_1)
+		Node { 0 } // entity (func_autorifle_1)
+		Node { 0 } // entity (func_static_2)
+	}
+	SelectionGroups
+	{
+	}
+	SelectionGroupNodeMapping
+	{
+	}
+	MapEditTimings
+	{
+		TotalSecondsEdited { 2406 }
+	}
+	SelectionSets
+	{
+	}
+}

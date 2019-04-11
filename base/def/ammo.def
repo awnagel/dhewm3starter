@@ -1,0 +1,27 @@
+entityDef ammo_types
+{
+	"ammo_none"				"0"
+}
+
+
+
+entityDef weapon_unarmed
+{
+	"inv_name"					"Unarmed"
+	"inv_weapon"				"weapon_unarmed"
+
+	"weapon_scriptobject"		"weapon_unarmed"
+	"ammoType"					""
+	"ammoRequired"				"0"
+	"clipSize"					"0"
+}
+
+entityDef weapon_insult
+{
+	"inv_name"	"Insult"
+	"inv_weapon"	"weapon_insult"
+	"weapon_scriptobject"	"weapon_insult"
+	"ammoType"	"Lie"
+	"ammoRequired"	"1"
+	"clipSize"	"5"
+}

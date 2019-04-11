@@ -1,0 +1,161 @@
+entityDef worldspawn
+{
+  "editor_color" "0 .5 .8"
+  "editor_mins"  "?"
+  "editor_maxs"  "?"
+  "no_stamina"   "1"
+  "spawnclass"   "idWorldspawn"
+}
+
+entityDef light
+{
+  "editor_color" "0 1 0"
+  "editor_mins"  "-8 -8 -8"
+  "editor_maxs"  "8 8 8"
+  "spawnclass"   "idLight"
+}
+
+entityDef info_player_start
+{
+  "editor_color"     "1 0 0"
+  "editor_mins"      "-16 -16 0"
+  "editor_maxs"      "16 16 64"
+  "editor_showangle" "1"
+  "spawnclass"       "idPlayerStart"
+}
+
+entityDef info_player_deathmatch
+{ 
+  "editor_color"     "1 0 0"
+  "editor_mins"      "-16 -16 0"
+  "editor_maxs"      "16 16 64"
+  "editor_showangle" "1"
+  "spawnclass"       "idPlayerStart"
+}
+
+entityDef func_static {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
+	"editor_showangle"			"1"
+	"editor_rotatable"			"1"
+	
+
+	"editor_bool solid"			"whether the object should be solid or not."
+	"editor_bool hide"			"whether the object should be visible when spawned. you need to set a value for triggering on/off to work"
+	"editor_gui gui"			"gui attached to this static, gui2 and gui3 also work"
+	"editor_gui gui_demonic"	"demonic gui attached to this statit, gui_demonic2 and gui_demonic3 also work"
+	"editor_bool gui_noninteractive" "any gui attached will not be interactive"
+	"editor_bool noclipmodel"	"0 by default. Sets whether or not to generate a collision model for an ASE/LWO func_static at level load. (Set to 1 for stuff the player can't interact with. This will save memory.)"
+	"editor_bool inline"		"If true, turn the model into map geometry at dmap time"
+
+	"spawnclass"				"idStaticEntity"
+	
+	"solid"						"1"
+	"noclipmodel"				"0"
+	"frobbable"					"0"
+	
+	"spin"						"0"
+}
+
+entityDef func_emitter
+{
+	"inherit"					"func_static"
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-4 -4 -4"
+	"editor_maxs"				"4 4 4"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Emits particles."
+	"editor_var start_off"		"1 = invisible on spawn"
+	"editor_var cycleTrigger"	""
+	"solid"						"0"
+	"noclipmodel"				"1"
+	"editor_var model"			""
+	"model"						""
+
+	"spawnclass"				"idFuncEmitter"
+	"start_off"					"0"
+}
+
+entityDef func_mover {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
+
+	"editor_usage"				"Movers are objects meant to be controlled through scripts.\n\nresetmover = resets pos/angle on mission restart."
+	"editor_snd snd_accel"		"sound to play when acceleration starts.  Played on SND_CHANNEL_BODY & SND_CHANNEL_BODY2."
+	"editor_snd snd_move"		"sound to play when movement starts.  Played on SND_CHANNEL_BODY & SND_CHANNEL_BODY2."
+	"editor_snd snd_decel"		"sound to play when deceleration starts.  Played on SND_CHANNEL_BODY & SND_CHANNEL_BODY2."
+
+	"editor_var accel_time"		"how long it takes the mover to accelerate to full speed."
+	"editor_var decel_time"		"how long it takes the mover to deccelerate to a stop."
+	"editor_var move_time"		"how long it takes the mover to complete a move.  cannot be used with 'move_speed'."
+	"editor_var move_speed"		"how many units the mover travels per second.  cannot be used with 'move_time'."
+	"editor_var solidForTeam"	"whether mover is solid to objects bound to it, or objects it is bound to."
+	"editor_var damage"			"how much damage to cause entities that block mover."
+	"editor_var solid"			"whether the mover is solid to other entities."
+	"editor_var nopush"			"set to 1 to disable pushing objects that block the mover."
+	"editor_var guiTarget"		"GUI's associated with mover."
+	"editor_var health"			"when non-zero, how much damage to take before triggering targets."
+
+	"spawnclass"				"idMover"
+	
+	"resetmover"				"0"
+}
+
+entityDef trigger_once {
+	"editor_color"				".5 .5 .5"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
+	"editor_material"			"textures/common/trigonce"
+
+	"editor_usage"				"Variable sized single-use trigger.  Must be targeted at one or more entities."
+
+	"editor_var delay"			"seconds to wait before firing after triggered."
+	"editor_var call"			"script function to call when triggered."
+	"editor_var requires"		"item required in players inventory to fire."
+	"editor_var removeItem"		"if above item is removed from inventory when used."
+	"editor_var anyTouch"		"anything can touch it, players, mobs."		// What the hell are mobs?
+	"editor_var noTouch"		"cannot be touched, must be triggered."
+	"editor_var triggerFirst"	"don't activate until triggered."
+	"editor_var noClient"		"can't be touched by players, but can be touched by other entities (func_activators, for instance)."
+
+	"spawnclass"				"idTrigger_Multi"
+
+	"wait"						"-1"
+	"random"					"0"
+	"delay"						"0"
+	"anyTouch"					"0"
+	"noTouch"					"0"
+	"noClient"					"0"
+}
+
+entityDef speaker
+{
+	"editor_color"					"0 1 0"
+	"editor_mins"					"-4 -4 -4"
+	"editor_maxs"					"4 4 4"
+	"editor_material"				"textures/common/speaker"	
+
+	"editor_usage"					""
+	
+	"editor_snd s_shader"			"the sound shader or wavefile."
+	"editor_snd snd_demonic"		"demonic sound shader."
+	"editor_var overlayDemonic"		"set to 1 overlays the demonic sound instead of replacing it."
+	"editor_var s_waitfortrigger"	"play on load or play when triggered."
+	"editor_var s_volume"			"override shader volume level."
+	"editor_var s_minDistance"		"override shader minDistance."
+	"editor_var s_maxDistance"		"override shader maxDistance."
+	"editor_var s_omni"				"force omnidirectional"
+	"editor_var s_looping"			"force looping"
+	"editor_var s_occlusion"		"force no portal occlusion"
+	"editor_var s_global"			"force no falloff at all"
+	"editor_var s_shakes"			"this entity can make the screen shake when the sound is loud."
+	"editor_var wait"				"when set > 0, seconds between triggerings.  time between sounds is wait + or - random"
+	"editor_var random"				"wait variance."
+	
+	"spawnclass"					"idSound"
+	"s_shader"						" "
+	"s_waitfortrigger"				"0"
+}

@@ -1,0 +1,16 @@
+entityDef player_doommarine
+{
+	"spawnclass"   					"idPlayer"
+	"scriptobject" 					"player"
+  
+	"def_weapon0"					"weapon_unarmed" 
+	"weapon0_allowempty"			"1"
+	
+	"weapon"						"weapon_unarmed"
+	"current_weapon"				"0"   
+}
+
+entityDef player_doommarine_mp
+{
+	"inherit" 						"player_doommarine"
+}

@@ -1,0 +1,32 @@
+DarkRadiant Map Information File Version 2
+{
+	Layers
+	{
+		Layer 0 { Default }
+	}
+	NodeToLayerMapping
+	{
+		Node { 0 } // entity (worldspawn)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // brush (Brush)
+		Node { 0 } // entity (light_1)
+		Node { 0 } // entity (info_player_start_1)
+	}
+	MapEditTimings
+	{
+		TotalSecondsEdited { 3780 }
+	}
+	SelectionGroups
+	{
+	}
+	SelectionGroupNodeMapping
+	{
+	}
+	SelectionSets
+	{
+	}
+}

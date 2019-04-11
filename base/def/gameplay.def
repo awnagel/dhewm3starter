@@ -1,0 +1,6 @@
+entityDef func_animate
+{
+	"spawnclass"				"idAnimated"
+	"sound_bone"				"origin"
+	"notriggeronanim"			"1"
+}
