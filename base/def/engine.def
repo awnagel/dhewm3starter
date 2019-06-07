@@ -159,3 +159,11 @@ entityDef speaker
 	"s_shader"						" "
 	"s_waitfortrigger"				"0"
 }
+
+entityDef frobcube
+{
+	"spawnclass"				"idFrobCube"
+	"frobbable"					"1"
+	"corpse"					"1"
+	"solid"						"1"
+}

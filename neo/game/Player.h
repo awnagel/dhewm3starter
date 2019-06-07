@@ -330,6 +330,14 @@ public:
 public:
 	CLASS_PROTOTYPE( idPlayer );
 
+	// AN Public
+	int						attackTimer;
+	bool					attackHeld;
+	idEntity *				focusFrobEnt;
+	idVec3					lastTracePos;
+	bool					DoFrob(idEntity *frobbee);
+	bool					UseFrob(idEntity *entity, const char *scriptname);
+
 							idPlayer();
 	virtual					~idPlayer();
 
@@ -525,6 +533,9 @@ public:
 	void					SetSelfSmooth( bool b );
 
 private:
+	// AN Private
+	void					UpdateFrob(void);
+
 	jointHandle_t			hipJoint;
 	jointHandle_t			chestJoint;
 	jointHandle_t			headJoint;

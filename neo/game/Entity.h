@@ -116,6 +116,10 @@ public:
 
 class idEntity : public idClass {
 public:
+
+	// FROBBING
+	bool					isFrobbable;
+
 	static const int		MAX_PVS_AREAS = 4;
 
 	int						entityNumber;			// index into the entity list
@@ -465,6 +469,7 @@ private:
 	void					Event_HasFunction( const char *name );
 	void					Event_CallFunction( const char *name );
 	void					Event_SetNeverDormant( int enable );
+	void					Event_SetFrobbable(int enable);
 };
 
 /*

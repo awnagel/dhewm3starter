@@ -120,6 +120,7 @@ const idEventDef EV_StartFx( "startFx", "s" );
 const idEventDef EV_HasFunction( "hasFunction", "s", 'd' );
 const idEventDef EV_CallFunction( "callFunction", "s" );
 const idEventDef EV_SetNeverDormant( "setNeverDormant", "d" );
+const idEventDef EV_SetFrobbable("setFrobbable", "d");
 
 ABSTRACT_DECLARATION( idClass, idEntity )
 	EVENT( EV_GetName,				idEntity::Event_GetName )
@@ -185,6 +186,7 @@ ABSTRACT_DECLARATION( idClass, idEntity )
 	EVENT( EV_HasFunction,			idEntity::Event_HasFunction )
 	EVENT( EV_CallFunction,			idEntity::Event_CallFunction )
 	EVENT( EV_SetNeverDormant,		idEntity::Event_SetNeverDormant )
+	EVENT( EV_SetFrobbable,			idEntity::Event_SetFrobbable )
 END_CLASS
 
 /*
@@ -464,6 +466,9 @@ void idEntity::Spawn( void ) {
 	const idKeyValue	*networkSync;
 	const char			*classname;
 	const char			*scriptObjectName;
+
+	// AN get frobbable
+	isFrobbable = spawnArgs.GetBool("frobbable", "1");
 
 	gameLocal.RegisterEntity( this );
 
@@ -4569,6 +4574,11 @@ idEntity::Event_SetNeverDormant
 void idEntity::Event_SetNeverDormant( int enable ) {
 	fl.neverDormant	= ( enable != 0 );
 	dormantStart = 0;
+}
+
+void idEntity::Event_SetFrobbable(int enable)
+{
+	this->isFrobbable = enable;
 }
 
 /***********************************************************************

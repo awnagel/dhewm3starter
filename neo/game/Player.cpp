@@ -40,6 +40,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "Camera.h"
 #include "Fx.h"
 #include "Misc.h"
+#include "Mover.h"
+#include "Moveable.h"
+#include "frobcube.h"
 
 const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 999 );	// 9 bits to cover the range [0, 999]
 const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
@@ -72,6 +75,9 @@ const int HEALTHPULSE_TIME = 333;
 
 // minimum speed to bob and play run/walk animations at
 const float MIN_BOB_SPEED = 5.0f;
+
+#define FROB_CLICK_TIMER 300
+#define FROB_DISTANCE 112
 
 const idEventDef EV_Player_GetButtons( "getButtons", NULL, 'd' );
 const idEventDef EV_Player_GetMove( "getMove", NULL, 'v' );
@@ -955,6 +961,8 @@ idPlayer::idPlayer
 idPlayer::idPlayer() {
 	memset( &usercmd, 0, sizeof( usercmd ) );
 
+	focusFrobEnt = NULL;
+
 	noclip					= false;
 	godmode					= false;
 
@@ -1199,6 +1207,10 @@ idPlayer::Init
 void idPlayer::Init( void ) {
 	const char			*value;
 	const idKeyValue	*kv;
+
+	focusFrobEnt = NULL;
+	attackHeld = false;
+	attackTimer = 0;
 
 	noclip					= false;
 	godmode					= false;
@@ -1621,6 +1633,8 @@ idPlayer::Save
 void idPlayer::Save( idSaveGame *savefile ) const {
 	int i;
 
+	savefile->WriteObject(focusFrobEnt);
+
 	savefile->WriteUsercmd( usercmd );
 	playerView.Save( savefile );
 
@@ -1833,6 +1847,8 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	int	  i;
 	int	  num;
 	float set;
+
+	savefile->ReadObject(reinterpret_cast<idClass *&>(focusFrobEnt));
 
 	savefile->ReadUsercmd( usercmd );
 	playerView.Restore( savefile );
@@ -4066,7 +4082,45 @@ void idPlayer::UpdateWeapon( void ) {
 		Weapon_GUI();
 	} else	if ( focusCharacter && ( focusCharacter->health > 0 ) ) {
 		Weapon_NPC();
-	} else {
+	}
+	else if (focusFrobEnt) {
+
+		if (idealWeapon != currentWeapon)
+		{
+			Weapon_Combat();
+		}
+
+		StopFiring();
+		weapon.GetEntity()->LowerWeapon();
+
+		if (focusFrobEnt)
+		{
+			if ((usercmd.buttons & BUTTON_ATTACK) && !this->attackHeld)
+			{
+				this->attackTimer = gameLocal.time;
+				this->attackHeld = true;
+			}
+
+			if ((usercmd.buttons & BUTTON_ATTACK) && (this->attackTimer + FROB_CLICK_TIMER < gameLocal.time))
+			{
+				//held
+			}
+			else if (!(usercmd.buttons & BUTTON_ATTACK) && (this->attackTimer + FROB_CLICK_TIMER >= gameLocal.time) && this->attackHeld)
+			{
+				// Tapped
+				if (!DoFrob(focusFrobEnt))
+				{
+					// Tapped code
+				}
+			}
+
+			if (!(usercmd.buttons & BUTTON_ATTACK) && this->attackHeld)
+			{
+				this->attackHeld = false;
+			}
+		}
+	}
+	else {
 		Weapon_Combat();
 	}
 
@@ -4076,6 +4130,197 @@ void idPlayer::UpdateWeapon( void ) {
 
 	// update weapon state, particles, dlights, etc
 	weapon.GetEntity()->PresentWeapon( showWeaponViewModel );
+}
+
+// DoFrob
+bool idPlayer::DoFrob(idEntity *frobbee) {
+	// Get object type and perform specific action
+	
+	// Door interaction
+	if (frobbee->IsType(idDoor::Type))
+	{
+		idDoor *door = static_cast<idDoor *>(frobbee);
+		const char *ownerName;
+
+		if (door->IsOpen())
+		{
+			door->Close();
+		}
+		else
+		{
+			if (door->IsLocked())
+			{
+				common->Printf("Locked");
+				return false;
+			}
+			else
+			{
+				door->Open();
+			}
+		}
+
+		return true;
+	}
+
+	// Generic frob script call
+	if ((frobbee->IsType(idStaticEntity::Type) || frobbee->IsType(idAnimated::Type))
+		&& !frobbee->IsType(idFrobCube::Type))
+	{
+		//see if there's a script call associated with this.
+		idStr funcName = frobbee->spawnArgs.GetString("call", "");
+		if (funcName.Length())
+		{
+			const function_t	*func;
+			func = gameLocal.program.FindFunction(funcName);
+
+			if (func != NULL)
+			{
+				idThread			*thread;
+				thread = new idThread(func);
+				thread->DelayedStart(0);
+
+				return true;
+			}
+			else
+			{
+				gameLocal.Warning("Ent '%s' at (%s) calls unknown function '%s'\n", frobbee->name.c_str(), frobbee->GetPhysics()->GetOrigin().ToString(0), funcName.c_str());
+			}
+		}
+	}
+
+	if (UseFrob(frobbee, "onFrob"))
+	{
+		return true;
+	}
+	else
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool idPlayer::UseFrob(idEntity *entity, const char *scriptname) {
+	
+	if (entity == NULL)
+	{
+		return false;
+	}
+
+	const char *ownerName;
+	if (entity->spawnArgs.GetString("owner", "", &ownerName))
+	{
+		if (ownerName && *ownerName)
+		{
+			if (entity->IsType(idFrobCube::Type))
+			{
+				static_cast<idFrobCube *>(entity)->OnFrob(entity);
+				return true;
+			}
+		}
+	}
+
+	// Add special use cases here
+	if (entity->IsType(idFrobCube::Type))
+	{
+		static_cast<idFrobCube *>(entity)->OnFrob(entity);
+		return true;
+	}
+
+	// Attempt to frob object in crosshairs
+	const function_t *frobcall;
+	frobcall = entity->scriptObject.GetFunction(scriptname);
+
+	if (frobcall)
+	{
+		// start a thread that will run immediately and be destroyed
+		idThread *thread;
+		thread = new idThread();
+		thread->SetThreadName(name.c_str());
+		thread->CallFunction(entity, frobcall, true);
+
+		// Fingers crossed nothing breaks
+		if (!thread->Execute())
+		{
+			//gameLocal.Warning("UseFrob fail: %s %s\n", entity->GetName(), scriptname);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void idPlayer::UpdateFrob(void)
+{
+	if (noclip)
+	{
+		focusFrobEnt = NULL;
+		return;
+	}
+	
+	idVec3 eyePos = GetEyePosition();
+	
+	idVec3 start = eyePos;
+	idVec3 end;
+	
+	int customFrobDistance = gameLocal.world->spawnArgs.GetInt("frobdistance");
+	
+	if (customFrobDistance > 0)
+	{
+		end = start + viewAngles.ToForward() * customFrobDistance;
+	}
+	else
+	{
+		end = start + viewAngles.ToForward() * FROB_DISTANCE;
+	}
+	
+	int cm = CONTENTS_SOLID | CONTENTS_OPAQUE | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_RENDERMODEL;
+
+	trace_t trace;
+	gameLocal.clip.TracePoint(trace, start, end, cm, this);
+	
+	lastTracePos = trace.endpos;
+	
+	if (trace.fraction >= 1.0f)
+	{
+		//cursor->SetStateInt("frobcursor", 0);
+		focusFrobEnt = NULL;
+		
+		return;
+	}
+	
+	idEntity *ent = gameLocal.entities[trace.c.entityNum];
+	
+	if ((ent->IsType(idAFEntity_Generic::Type)	//ARTICULATED FIGURES.
+		|| ent->IsType(idMoveable::Type)		//MOVEABLES.
+		|| ent->IsType(idMoveableItem::Type)	//MOVEABLEITEMS.
+		|| ent->IsType(idStaticEntity::Type)	//STATIC ENTITIES.
+		|| ent->IsType(idDoor::Type)			//DOORS.
+		|| ent->IsType(idAnimated::Type)		//ANIMATED ENTITIES.
+		&& ent->isFrobbable))
+	{
+		// Is frobbable
+	}
+	else
+	{
+		focusFrobEnt = NULL;
+		//cursor->SetStateInt("frobcursor", 0);
+		return;
+	}
+	
+	//if negative number, then make it a positive number.
+	int contactID = abs(trace.c.id);
+	
+	int numJoints = ent->GetRenderEntity()->numJoints;
+	
+	if (numJoints > 0 && ent->IsType(idAFEntity_Base::Type))
+	{
+		contactID = numJoints - 3;
+	}
+	
+	//cursor->SetStateInt("frobcursor", 1);  //grab icon.
+	focusFrobEnt = static_cast<idEntity *>(ent);
 }
 
 /*
@@ -6283,6 +6528,7 @@ void idPlayer::Think( void ) {
 	}
 
 	Move();
+	UpdateFrob();
 
 	if ( !g_stopTime.GetBool() ) {
 

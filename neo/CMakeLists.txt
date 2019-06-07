@@ -540,6 +540,7 @@ set(src_idlib
 )
 
 set(src_game
+	game/frobcube.cpp
 	game/AF.cpp
 	game/AFEntity.cpp
 	game/Actor.cpp
