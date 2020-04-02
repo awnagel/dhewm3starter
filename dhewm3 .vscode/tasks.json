@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile with Make",
+            "type": "shell",
+            "command": "cd ./neo && make && mv dhewm3 ../dhewm3 && mv base.so ../base.so && mv d3xp.so ../d3xp.so"
+        },
+        {
+            "label": "CMake",
+            "type": "shell",
+            "command": "cd ./neo && cmake ."
+        },
+        {
+            "type": "shell",
+            "label": "clang++ build active file",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
+        }
+    ]
+}
